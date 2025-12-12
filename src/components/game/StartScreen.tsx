@@ -1,42 +1,73 @@
 import { Button } from '@/components/ui/button';
 import { Play, Volume2, VolumeX } from 'lucide-react';
+import { CharacterSelector } from './CharacterSelector';
+import { Character } from '@/hooks/useCharacters';
 
 interface StartScreenProps {
   onStart: () => void;
   isMuted: boolean;
   onToggleMute: () => void;
+  characters: Character[];
+  selectedCharacterId: string;
+  onSelectCharacter: (id: string) => void;
+  selectedCharacter: Character;
 }
 
-export function StartScreen({ onStart, isMuted, onToggleMute }: StartScreenProps) {
+export function StartScreen({ 
+  onStart, 
+  isMuted, 
+  onToggleMute,
+  characters,
+  selectedCharacterId,
+  onSelectCharacter,
+  selectedCharacter,
+}: StartScreenProps) {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-game-sky-top to-game-sky-bottom z-10">
-      <div className="text-center animate-bounce-in">
-        <h1 className="font-arcade text-3xl sm:text-4xl text-primary mb-2 text-shadow-glow">
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-game-sky-top to-game-sky-bottom z-10 p-4">
+      <div className="text-center animate-bounce-in w-full max-w-xs">
+        <h1 className="font-arcade text-2xl sm:text-3xl text-primary mb-1 text-shadow-glow">
           FLAPPY
         </h1>
-        <h1 className="font-arcade text-2xl sm:text-3xl text-secondary mb-8">
-          BIRD
+        <h1 className="font-arcade text-xl sm:text-2xl text-secondary mb-4">
+          FACES
         </h1>
 
-        <div className="animate-float mb-10">
-          <div className="w-20 h-16 mx-auto relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80 rounded-full shadow-lg" />
-            <div className="absolute top-2 right-3 w-4 h-4 bg-card rounded-full" />
-            <div className="absolute top-3 right-3 w-2 h-2 bg-foreground rounded-full" />
-            <div className="absolute top-5 -right-2 w-0 h-0 border-l-8 border-l-accent border-y-4 border-y-transparent" />
+        {/* Selected Character Preview */}
+        <div className="animate-float mb-4">
+          <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center overflow-hidden border-4 border-card shadow-lg">
+            {selectedCharacter.image ? (
+              <img 
+                src={selectedCharacter.image} 
+                alt={selectedCharacter.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-3xl">{selectedCharacter.emoji}</span>
+            )}
           </div>
+          <p className="font-arcade text-[8px] text-foreground mt-2">{selectedCharacter.name}</p>
+          <p className="text-[10px] text-muted-foreground">{selectedCharacter.power}</p>
+        </div>
+
+        {/* Character Selector */}
+        <div className="mb-4">
+          <CharacterSelector
+            characters={characters}
+            selectedCharacterId={selectedCharacterId}
+            onSelectCharacter={onSelectCharacter}
+          />
         </div>
 
         <Button
           onClick={onStart}
           size="lg"
-          className="font-arcade text-sm px-8 py-6 animate-pulse-glow hover:scale-105 transition-transform"
+          className="font-arcade text-xs px-6 py-4 animate-pulse-glow hover:scale-105 transition-transform"
         >
-          <Play className="w-5 h-5 mr-2" />
+          <Play className="w-4 h-4 mr-2" />
           START
         </Button>
 
-        <p className="mt-8 text-muted-foreground font-body text-sm">
+        <p className="mt-4 text-muted-foreground font-body text-xs">
           Tap or click to flap!
         </p>
       </div>

@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { GameAssets } from '@/hooks/useGameAssets';
+import { Character } from '@/hooks/useCharacters';
 
 interface GameCanvasProps {
   isPlaying: boolean;
@@ -9,6 +10,7 @@ interface GameCanvasProps {
   playFlap: () => void;
   playScore: () => void;
   playCollision: () => void;
+  selectedCharacter?: Character;
 }
 
 interface Bird {
@@ -45,6 +47,7 @@ export function GameCanvas({
   playFlap,
   playScore,
   playCollision,
+  selectedCharacter,
 }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
@@ -143,6 +146,11 @@ export function GameCanvas({
     ctx.rotate(bird.rotation);
 
     if (birdImageRef.current) {
+      // Draw custom image as circular avatar
+      ctx.beginPath();
+      ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
       ctx.drawImage(
         birdImageRef.current,
         -bird.width / 2,
@@ -150,6 +158,22 @@ export function GameCanvas({
         bird.width,
         bird.height
       );
+    } else if (selectedCharacter) {
+      // Draw emoji character as a circular face
+      // Background circle
+      const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, bird.width / 2);
+      gradient.addColorStop(0, '#FFE066');
+      gradient.addColorStop(1, '#F59E0B');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw emoji
+      ctx.font = `${bird.width * 0.7}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(selectedCharacter.emoji, 0, 2);
     } else {
       // Default bird drawing
       // Body
@@ -188,7 +212,7 @@ export function GameCanvas({
     }
 
     ctx.restore();
-  }, []);
+  }, [selectedCharacter]);
 
   const drawPipe = useCallback((ctx: CanvasRenderingContext2D, pipe: Pipe, canvasHeight: number) => {
     const pipeGradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipe.width, 0);

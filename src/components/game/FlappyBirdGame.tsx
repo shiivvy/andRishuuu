@@ -5,6 +5,7 @@ import { GameOverScreen } from './GameOverScreen';
 import { ScoreDisplay } from './ScoreDisplay';
 import { useGameAssets } from '@/hooks/useGameAssets';
 import { useGameSounds } from '@/hooks/useGameSounds';
+import { useCharacters } from '@/hooks/useCharacters';
 
 type GameState = 'start' | 'playing' | 'gameOver';
 
@@ -16,7 +17,19 @@ export function FlappyBirdGame() {
     return saved ? parseInt(saved, 10) : 0;
   });
 
-  const { assets, handleFileUpload } = useGameAssets();
+  const { assets, handleFileUpload, updateAsset } = useGameAssets();
+  const {
+    characters,
+    selectedCharacter,
+    selectedCharacterId,
+    selectCharacter,
+    updateCharacterImage,
+  } = useCharacters();
+
+  // Sync selected character image with game assets
+  useEffect(() => {
+    updateAsset('birdImage', selectedCharacter.image);
+  }, [selectedCharacter.image, updateAsset]);
   const {
     isMuted,
     initAudio,
@@ -80,6 +93,7 @@ export function FlappyBirdGame() {
           playFlap={playFlap}
           playScore={playScore}
           playCollision={playCollision}
+          selectedCharacter={selectedCharacter}
         />
 
         {gameState === 'playing' && <ScoreDisplay score={score} />}
@@ -89,6 +103,10 @@ export function FlappyBirdGame() {
             onStart={handleStart}
             isMuted={isMuted}
             onToggleMute={toggleMute}
+            characters={characters}
+            selectedCharacterId={selectedCharacterId}
+            onSelectCharacter={selectCharacter}
+            selectedCharacter={selectedCharacter}
           />
         )}
 
@@ -97,10 +115,18 @@ export function FlappyBirdGame() {
             score={score}
             highScore={highScore}
             onRestart={handleRestart}
-            onUploadBird={handleUploadBird}
+            onUploadBird={(file) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const result = e.target?.result as string;
+                updateCharacterImage(selectedCharacterId, result);
+              };
+              reader.readAsDataURL(file);
+            }}
             isMuted={isMuted}
             onToggleMute={toggleMute}
-            currentBirdImage={assets.birdImage}
+            currentBirdImage={selectedCharacter.image}
+            selectedCharacter={selectedCharacter}
           />
         )}
       </div>
