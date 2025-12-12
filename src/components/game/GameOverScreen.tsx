@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, Upload, Volume2, VolumeX } from 'lucide-react';
+import { Character } from '@/hooks/useCharacters';
 
 interface GameOverScreenProps {
   score: number;
@@ -10,6 +11,7 @@ interface GameOverScreenProps {
   isMuted: boolean;
   onToggleMute: () => void;
   currentBirdImage: string | null;
+  selectedCharacter: Character;
 }
 
 export function GameOverScreen({
@@ -20,6 +22,7 @@ export function GameOverScreen({
   isMuted,
   onToggleMute,
   currentBirdImage,
+  selectedCharacter,
 }: GameOverScreenProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -32,27 +35,44 @@ export function GameOverScreen({
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-foreground/60 backdrop-blur-sm z-20">
-      <div className="bg-card rounded-3xl p-8 shadow-2xl animate-bounce-in max-w-sm w-full mx-4">
-        <h2 className="font-arcade text-2xl text-accent mb-6 text-center animate-shake">
+      <div className="bg-card rounded-3xl p-6 shadow-2xl animate-bounce-in max-w-sm w-full mx-4">
+        <h2 className="font-arcade text-xl text-accent mb-4 text-center animate-shake">
           GAME OVER
         </h2>
 
-        <div className="space-y-4 mb-8">
-          <div className="flex justify-between items-center bg-muted rounded-xl px-4 py-3">
-            <span className="font-body font-semibold text-muted-foreground">Score</span>
-            <span className="font-arcade text-lg text-foreground">{score}</span>
+        {/* Selected Character Display */}
+        <div className="flex flex-col items-center mb-4">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center overflow-hidden border-3 border-card shadow-lg">
+            {selectedCharacter.image ? (
+              <img 
+                src={selectedCharacter.image} 
+                alt={selectedCharacter.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-2xl">{selectedCharacter.emoji}</span>
+            )}
+          </div>
+          <p className="font-arcade text-[8px] text-foreground mt-2">{selectedCharacter.name}</p>
+          <p className="text-[9px] text-muted-foreground">{selectedCharacter.power}</p>
+        </div>
+
+        <div className="space-y-3 mb-6">
+          <div className="flex justify-between items-center bg-muted rounded-xl px-4 py-2">
+            <span className="font-body font-semibold text-muted-foreground text-sm">Score</span>
+            <span className="font-arcade text-base text-foreground">{score}</span>
           </div>
 
-          <div className="flex justify-between items-center bg-muted rounded-xl px-4 py-3">
-            <span className="font-body font-semibold text-muted-foreground">Best</span>
-            <span className="font-arcade text-lg text-primary">{highScore}</span>
+          <div className="flex justify-between items-center bg-muted rounded-xl px-4 py-2">
+            <span className="font-body font-semibold text-muted-foreground text-sm">Best</span>
+            <span className="font-arcade text-base text-primary">{highScore}</span>
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           <Button
             onClick={onRestart}
-            className="w-full font-arcade text-xs py-6 hover:scale-105 transition-transform"
+            className="w-full font-arcade text-xs py-5 hover:scale-105 transition-transform"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
             PLAY AGAIN
@@ -61,10 +81,10 @@ export function GameOverScreen({
           <Button
             variant="secondary"
             onClick={() => fileInputRef.current?.click()}
-            className="w-full font-body font-semibold py-5"
+            className="w-full font-body font-semibold py-4 text-sm"
           >
             <Upload className="w-4 h-4 mr-2" />
-            Change Bird
+            Upload Custom Face for {selectedCharacter.name.split(' ')[0]}
           </Button>
 
           <input
@@ -74,17 +94,6 @@ export function GameOverScreen({
             onChange={handleFileChange}
             className="hidden"
           />
-
-          {currentBirdImage && (
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <img
-                src={currentBirdImage}
-                alt="Current bird"
-                className="w-8 h-8 object-contain rounded"
-              />
-              <span className="font-body">Custom bird active</span>
-            </div>
-          )}
         </div>
 
         <button
