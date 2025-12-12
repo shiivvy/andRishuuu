@@ -29,12 +29,12 @@ interface Pipe {
   passed: boolean;
 }
 
-const GRAVITY = 0.4;
-const FLAP_FORCE = -7;
-const PIPE_SPEED = 3;
-const PIPE_SPAWN_INTERVAL = 2000;
+const GRAVITY = 0.2;
+const FLAP_FORCE = -5;
+const PIPE_SPEED = 1.5;
+const PIPE_SPAWN_INTERVAL = 3000;
 const PIPE_WIDTH = 60;
-const PIPE_GAP = 150;
+const PIPE_GAP = 200;
 const GROUND_HEIGHT = 80;
 
 export function GameCanvas({
