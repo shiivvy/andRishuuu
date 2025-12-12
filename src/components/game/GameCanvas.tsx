@@ -29,7 +29,7 @@ interface Pipe {
   passed: boolean;
 }
 
-const GRAVITY = 0.2;
+const GRAVITY = 0.1;
 const FLAP_FORCE = -5;
 const PIPE_SPEED = 1.5;
 const PIPE_SPAWN_INTERVAL = 3000;
