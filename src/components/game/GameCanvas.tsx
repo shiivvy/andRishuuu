@@ -38,6 +38,8 @@ const PIPE_SPAWN_INTERVAL = 3000;
 const PIPE_WIDTH = 60;
 const PIPE_GAP = 200;
 const GROUND_HEIGHT = 80;
+const DISPLAY_SIZE = 80; // Visual size of character (bigger for visibility)
+const HITBOX_SIZE = 20; // Collision detection uses center point only
 
 export function GameCanvas({
   isPlaying,
@@ -145,69 +147,88 @@ export function GameCanvas({
     ctx.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
     ctx.rotate(bird.rotation);
 
+    const displayRadius = DISPLAY_SIZE / 2;
+
     if (birdImageRef.current) {
-      // Draw custom image as circular avatar
+      // Draw custom image with cover-style cropping (no compression)
+      const img = birdImageRef.current;
+      const imgWidth = img.naturalWidth;
+      const imgHeight = img.naturalHeight;
+      
+      // Calculate cover crop - use the smaller dimension to fill the circle
+      const imgAspect = imgWidth / imgHeight;
+      let srcX = 0, srcY = 0, srcW = imgWidth, srcH = imgHeight;
+      
+      if (imgAspect > 1) {
+        // Image is wider - crop sides
+        srcW = imgHeight;
+        srcX = (imgWidth - srcW) / 2;
+      } else {
+        // Image is taller - crop top/bottom
+        srcH = imgWidth;
+        srcY = (imgHeight - srcH) / 2;
+      }
+
+      // Clip to circle and draw larger
       ctx.beginPath();
-      ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
+      ctx.arc(0, 0, displayRadius, 0, Math.PI * 2);
       ctx.closePath();
       ctx.clip();
+      
+      // Draw with cover crop (centered, no compression)
       ctx.drawImage(
-        birdImageRef.current,
-        -bird.width / 2,
-        -bird.height / 2,
-        bird.width,
-        bird.height
+        img,
+        srcX, srcY, srcW, srcH, // Source crop (square from center)
+        -displayRadius, -displayRadius, DISPLAY_SIZE, DISPLAY_SIZE // Destination (bigger)
       );
     } else if (selectedCharacter) {
-      // Draw emoji character as a circular face
-      // Background circle
-      const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, bird.width / 2);
+      // Draw emoji character as a circular face (bigger)
+      const gradient = ctx.createRadialGradient(0, 0, 10, 0, 0, displayRadius);
       gradient.addColorStop(0, '#FFE066');
       gradient.addColorStop(1, '#F59E0B');
       ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.arc(0, 0, bird.width / 2, 0, Math.PI * 2);
+      ctx.arc(0, 0, displayRadius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Draw emoji
-      ctx.font = `${bird.width * 0.7}px Arial`;
+      // Draw emoji larger
+      ctx.font = `${DISPLAY_SIZE * 0.6}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(selectedCharacter.emoji, 0, 2);
+      ctx.fillText(selectedCharacter.emoji, 0, 4);
     } else {
-      // Default bird drawing
-      // Body
-      const gradient = ctx.createRadialGradient(0, 0, 5, 0, 0, bird.width / 2);
+      // Default bird drawing (bigger)
+      const gradient = ctx.createRadialGradient(0, 0, 10, 0, 0, displayRadius);
       gradient.addColorStop(0, '#FFE066');
       gradient.addColorStop(1, '#F59E0B');
       ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.ellipse(0, 0, bird.width / 2, bird.height / 2, 0, 0, Math.PI * 2);
+      ctx.arc(0, 0, displayRadius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Eye
+      // Eye (scaled up)
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(8, -5, 8, 0, Math.PI * 2);
+      ctx.arc(16, -10, 16, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = '#1a1a1a';
       ctx.beginPath();
-      ctx.arc(10, -5, 4, 0, Math.PI * 2);
+      ctx.arc(20, -10, 8, 0, Math.PI * 2);
       ctx.fill();
 
-      // Beak
+      // Beak (scaled up)
       ctx.fillStyle = '#EF4444';
       ctx.beginPath();
-      ctx.moveTo(15, 0);
-      ctx.lineTo(25, 3);
-      ctx.lineTo(15, 6);
+      ctx.moveTo(30, 0);
+      ctx.lineTo(50, 6);
+      ctx.lineTo(30, 12);
       ctx.closePath();
       ctx.fill();
 
-      // Wing
+      // Wing (scaled up)
       ctx.fillStyle = '#D97706';
       ctx.beginPath();
-      ctx.ellipse(-5, 5, 10, 6, -0.3, 0, Math.PI * 2);
+      ctx.ellipse(-10, 10, 20, 12, -0.3, 0, Math.PI * 2);
       ctx.fill();
     }
 
