@@ -3,9 +3,11 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
+// IMPORTANT → GitHub Pages base URL
+const basePath = "/andRishuuu/";
+
 export default defineConfig(({ mode }) => ({
-  base: "./", // Enables relative paths for GitHub Pages
+  base: basePath,   // ← THIS FIXES GITHUB PAGES
   server: {
     host: "::",
     port: 8080,
